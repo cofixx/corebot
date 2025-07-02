@@ -1,0 +1,27 @@
+
+{
+  "READ": "DELETE THIS: I only had 2 servers corebot was active but if u want add more",
+  "prefix": "\"",
+  "servers": [
+    {
+      "name": "",
+      "host": "",
+      "port": 25565,
+      "enabled": false,
+      "usergen": false,
+      "filtered": false,
+      "webhook": "",
+      "channel": ""
+    },
+    {
+      "name": "",
+      "host": "",
+      "port": 25565,
+      "enabled": false,
+      "usergen": false,
+      "filtered": false,
+      "webhook": "",
+      "channel": ""
+    }
+  ]
+}

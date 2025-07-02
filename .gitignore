@@ -1,0 +1,5 @@
+node_modules/
+filter.txt
+database.db
+exploits.js
+.env

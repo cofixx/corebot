@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>key streamer - ws</title>
+  <style>
+    body {
+      font-family: monospace;
+      font-size: 18px;
+      background: #111;
+      color: #eee;
+      padding: 20px;
+    }
+    .server {
+      margin-bottom: 20px;
+    }
+    .hash {
+      color: #4fd1c5;
+      cursor: pointer;
+      margin-left: 10px;
+    }
+    .hash:hover {
+      text-decoration: underline;
+    }
+    #text {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <h2>Key Streamer</h2>
+  <div id="text"></div>
+
+  <script>
+    const container = document.getElementById('text')
+    let latestData = []
+
+    async function askPassword() {
+      const password = prompt('Enter password to access hashes:')
+      if (!password) return alert('No password provided.')
+
+      const res = await fetch('/auth', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password })
+      })
+
+      if (!res.ok) {
+        alert('Access denied.')
+        return
+      }
+
+      const { token } = await res.json()
+      openSocket(token)
+    }
+
+    function openSocket(token) {
+      const ws = new WebSocket(`ws://${location.host}/?token=${token}`)
+
+      ws.onmessage = (event) => {
+        try {
+          latestData = JSON.parse(event.data)
+        } catch (e) {
+          console.error('Invalid JSON from server:', e)
+        }
+      }
+
+      setInterval(render, 200)
+      document.getElementById('text').style.display = 'block'
+    }
+
+    function render() {
+      container.innerHTML = ''
+      latestData.forEach(entry => {
+        const div = document.createElement('div')
+        div.classList.add('server')
+        div.innerHTML = `
+          <strong>${entry.server}</strong><br>
+          TRUST: <span class="hash" onclick="copyHash('${entry.TRUST}')">${entry.TRUST}</span><br>
+          ADMIN: <span class="hash" onclick="copyHash('${entry.ADMIN}')">${entry.ADMIN}</span><br>
+          OWNER: <span class="hash" onclick="copyHash('${entry.OWNER}')">${entry.OWNER}</span><br>
+        `
+        container.appendChild(div)
+      })
+    }
+
+    function copyHash(hash) {
+      navigator.clipboard.writeText(hash)
+        .then(() => console.log(`Copied: ${hash}`))
+        .catch(err => alert('Copy failed'))
+    }
+
+    askPassword()
+  </script>
+</body>
+</html>
